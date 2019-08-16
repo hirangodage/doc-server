@@ -28,7 +28,7 @@ jwt._set_error_handler_callbacks(api)
 
 
 #host multiple instances
-d=PathInfoDispatcher({'/product-api':mapp})
+d=PathInfoDispatcher({'/':mapp})
 server=WSGIServer(('0.0.0.0',80),d)
 #docker run -d -p 8088:8088 -t nginx
 #start web server
