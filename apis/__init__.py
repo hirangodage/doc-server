@@ -16,7 +16,7 @@ class MyApi(Api):
     @property
     def specs_url(self):
         """Monkey patch for HTTPS"""
-        scheme = 'http' if '8083' in self.base_url else 'https'
+        scheme = 'http' if '80' in self.base_url else 'https'
         return url_for(self.endpoint('specs'), _external=True, _scheme=scheme)
 
 api = MyApi(version='1.0', title='USC API',
