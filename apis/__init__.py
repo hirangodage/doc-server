@@ -19,7 +19,7 @@ class MyApi(Api):
         scheme = 'http' if '8083' in self.base_url else 'https'
         return url_for(self.endpoint('specs'), _external=True, _scheme=scheme)
 
-api = Api(version='1.0', title='USC API',
+api = MyApi(version='1.0', title='USC API',
     description='use to generate PDF files from HTML',
     authorizations=authorizations,
     security='apikey',
