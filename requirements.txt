@@ -2,6 +2,6 @@ flask==1.0.2
 cheroot==6.5.4
 flask_restful==0.3.7
 flask_jwt_extended==3.18.0
-pyjwt==1.7.1
+pyjwt==2.4.0
 pdfkit==0.6.1
 flask-restplus==0.12.1
