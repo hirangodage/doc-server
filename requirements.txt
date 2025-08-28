@@ -1,7 +1,7 @@
-flask==1.0.2
-cheroot==6.5.4
-flask_restful==0.3.7
-flask_jwt_extended==3.18.0
-pyjwt==1.7.1
-pdfkit==0.6.1
-flask-restplus==0.12.1
+cheroot==10.0.1
+flask==3.1.2
+flask-restx==1.1.1
+flask-jwt-extended==4.7.1
+pyjwt==2.10.1
+pdfkit==1.0.0
+pytest==8.2.2

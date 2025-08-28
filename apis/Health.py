@@ -1,4 +1,4 @@
-from flask_restplus import Namespace, Resource, fields
+from flask_restx import Namespace, Resource, fields
 from flask_jwt_extended import  jwt_required
 from flask import Flask,jsonify,request,flash,redirect,send_file
 import logging

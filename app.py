@@ -1,7 +1,7 @@
 from flask import Flask
 from apis import api
 from cheroot.wsgi import Server as WSGIServer,PathInfoDispatcher
-from flask_jwt_extended import JWTManager, jwt_required, jwt_refresh_token_required, get_jwt_identity, get_raw_jwt
+from flask_jwt_extended import JWTManager
 import logging
 import os
 
@@ -21,15 +21,15 @@ api.init_app(mapp)
 
 
 jwt = JWTManager(mapp)
-#register error handlers (inbuilt)
-jwt._set_error_handler_callbacks(api)
 
 
 
 
 #host multiple instances
 d=PathInfoDispatcher({'/':mapp})
-server=WSGIServer(('0.0.0.0',80),d)
+# Get port from environment variable or default to 80
+port = int(os.getenv('PORT', 80))
+server=WSGIServer(('0.0.0.0', port),d)
 #docker run -d -p 8088:8088 -t nginx
 #start web server
 try:

@@ -1,4 +1,4 @@
-from flask_restplus import Namespace, Resource, fields
+from flask_restx import Namespace, Resource, fields
 from flask import Flask,jsonify,request,flash,redirect,send_file
 import json
 import io,base64,os,pdfkit,zipfile,logging
@@ -54,30 +54,44 @@ class HtmlToPDF(Resource):
                   #check file types
                   if reqData['fileType'] == 'html':
                         logger.info('start processing HTML data for request:'+reqData['reference'])
-                        fileData=base64.decodestring( reqData['fileData'].encode("utf-8")).decode('utf-8', 'ignore')
-                        returnMime = 'application/pdf'
-                        pdf = pdfkit.from_string(fileData,False,options=reqData['options'])
-                        outputData=base64.b64encode(pdf).decode('utf-8', 'ignore')
+                        try:
+                            fileData = base64.b64decode(reqData['fileData']).decode('utf-8', 'ignore')
+                            returnMime = 'application/pdf'
+                            pdf = pdfkit.from_string(fileData, False, options=reqData['options'])
+                            outputData = base64.b64encode(pdf).decode('utf-8', 'ignore')
+                        except Exception as e:
+                            logger.error(f"Error processing HTML for request {reqData['reference']}: {e}")
+                            return "Error generating PDF from HTML", 500
 
                   if reqData['fileType'] == 'zip':
                         logger.info('start processing ZIP data for request:'+reqData['reference'])
                         fileData = []
                         returnMime = 'application/zip'
                         outputDatax = io.BytesIO()
-                        zipdata = base64.decodestring( reqData['fileData'].encode("utf-8"))
-                        zipinside = zipfile.ZipFile(io.BytesIO(zipdata), "r")
-                        for file in zipinside.infolist():
-                              pdf = pdfkit.from_string(zipinside.read(file).decode('utf-8', 'ignore'),False,options=reqData['options'])
-                              basename = os.path.splitext(file.filename)[0]+'.pdf'
-                              fileData.append({'data':pdf,'name':basename})
-                              
-                              
-                        zipOut = zipfile.ZipFile(outputDatax, 'w')
-                        for filex in fileData:
-                              zipOut.writestr(filex['name'],filex['data'])
-                        
-                        zipOut.close()
-                        outputData=base64.b64encode(outputDatax.getvalue()).decode("utf-8")
+                        try:
+                            zipdata = base64.b64decode(reqData['fileData'])
+                            with zipfile.ZipFile(io.BytesIO(zipdata), "r") as zipinside:
+                                for file in zipinside.infolist():
+                                    try:
+                                        pdf = pdfkit.from_string(zipinside.read(file).decode('utf-8', 'ignore'), False, options=reqData['options'])
+                                        basename = os.path.splitext(file.filename)[0] + '.pdf'
+                                        fileData.append({'data': pdf, 'name': basename})
+                                    except Exception as e:
+                                        logger.error(f"Error converting file {file.filename} in zip for request {reqData['reference']}: {e}")
+                                        # Optionally, skip this file and continue with others
+                                        continue
+
+                            with zipfile.ZipFile(outputDatax, 'w') as zipOut:
+                                for filex in fileData:
+                                    zipOut.writestr(filex['name'], filex['data'])
+
+                            outputData = base64.b64encode(outputDatax.getvalue()).decode("utf-8")
+                        except zipfile.BadZipFile:
+                            logger.error(f"Bad zip file for request {reqData['reference']}")
+                            return "Bad zip file", 400
+                        except Exception as e:
+                            logger.error(f"Error processing zip for request {reqData['reference']}: {e}")
+                            return "Error processing zip file", 500
 
 
                   if not fileData:

@@ -1,4 +1,4 @@
-from flask_restplus import Api
+from flask_restx import Api
 from apis.Documents import documents
 from apis.Health import health
 from flask import url_for
